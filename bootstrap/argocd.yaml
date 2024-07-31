@@ -23,6 +23,12 @@ spec:
           ingress:
             enabled: true
             ingressClassName: traefik
+            annotations:
+              cert-manager.io/cluster-issuer: "letsencrypt-production"
+            extraTls:
+              - hosts:
+                - argocd.lab.alsheykh.com
+                secretName: lab-tls
     chart: argo-cd
   destination:
     server: 'https://kubernetes.default.svc'
