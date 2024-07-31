@@ -1,11 +1,9 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  creationTimestamp: null
   finalizers:
   - resources-finalizer.argocd.argoproj.io
   labels:
-    app.kubernetes.io/managed-by: argocd-autopilot
     app.kubernetes.io/name: root
   name: root
   namespace: argocd
@@ -21,7 +19,7 @@ spec:
   project: default
   source:
     path: projects
-    repoURL: https://github.com/TheCodingSheikh/argo-autopilot.git
+    repoURL: https://github.com/TheCodingSheikh/home-lab.git
   syncPolicy:
     automated:
       allowEmpty: true
