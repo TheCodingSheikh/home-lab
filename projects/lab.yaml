@@ -65,7 +65,7 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: '{{ appName }}'
-      name: '{{ userGivenName }}'
+      name: lab-{{ userGivenName }}
       namespace: argocd
     spec:
       destination:
