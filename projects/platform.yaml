@@ -4,13 +4,13 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-options: PruneLast=true
     argocd.argoproj.io/sync-wave: "-2"
-  name: lab
+  name: platform
   namespace: argocd
 spec:
   clusterResourceWhitelist:
   - group: '*'
     kind: '*'
-  description: lab project
+  description: platform project
   destinations:
   - namespace: '*'
     server: '*'
@@ -27,14 +27,14 @@ kind: ApplicationSet
 metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "0"
-  name: lab
+  name: platform
   namespace: argocd
 spec:
   generators:
   - git:
       files:
-      - path: apps/**/lab/config.json
-      repoURL: https://github.com/TheCodingSheikh/home-lab.git
+      - path: platform/**/config.json
+      repoURL: https://github.com/TheCodingSheikh/homelab.git
       requeueAfterSeconds: 20
       revision: ""
       template:
@@ -44,8 +44,8 @@ spec:
           project: ""
   - git:
       files:
-      - path: apps/**/lab/config_dir.json
-      repoURL: https://github.com/TheCodingSheikh/home-lab.git
+      - path: platform/**/config_dir.json
+      repoURL: https://github.com/TheCodingSheikh/homelab.git
       requeueAfterSeconds: 20
       revision: ""
       template:
@@ -65,7 +65,7 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: '{{ appName }}'
-      name: lab-{{ userGivenName }}
+      name: '{{ userGivenName }}'
       namespace: argocd
     spec:
       destination:
@@ -76,7 +76,7 @@ spec:
         jsonPointers:
         - /status
         kind: Application
-      project: lab
+      project: platform
       source:
         path: '{{ srcPath }}'
         repoURL: '{{ srcRepoURL }}'

@@ -19,7 +19,7 @@ spec:
   project: default
   source:
     path: projects
-    repoURL: https://github.com/TheCodingSheikh/home-lab.git
+    repoURL: https://github.com/TheCodingSheikh/homelab.git
   syncPolicy:
     automated:
       allowEmpty: true
