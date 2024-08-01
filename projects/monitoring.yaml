@@ -4,13 +4,13 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-options: PruneLast=true
     argocd.argoproj.io/sync-wave: "-2"
-  name: platform
+  name: monitoring
   namespace: argocd
 spec:
   clusterResourceWhitelist:
   - group: '*'
     kind: '*'
-  description: platform project
+  description: monitoring project
   destinations:
   - namespace: '*'
     server: '*'
@@ -27,7 +27,7 @@ kind: ApplicationSet
 metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "0"
-  name: platform
+  name: monitoring
   namespace: argocd
 spec:
   generators:
@@ -76,7 +76,7 @@ spec:
         jsonPointers:
         - /status
         kind: Application
-      project: platform
+      project: monitoring
       source:
         path: '{{ srcPath }}'
         repoURL: '{{ srcRepoURL }}'

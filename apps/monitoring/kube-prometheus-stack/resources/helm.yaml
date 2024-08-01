@@ -1,0 +1,347 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  labels:
+    app.kubernetes.io/name: kube-prometheus-stack
+  name: kube-prometheus-stack
+  namespace: argocd
+spec:
+  project: system
+  source:
+    repoURL: 'https://prometheus-community.github.io/helm-charts'
+    targetRevision: 61.6.1
+    helm:
+      valuesObject:
+        alertmanager:
+              enabled: false
+
+        kubeApiServer:
+          enabled: true
+          serviceMonitor:
+            metricRelabelings:
+              - action: drop
+                sourceLabels: ["__name__"]
+                regex: (apiserver|etcd|rest_client)_request(|_sli|_slo)_duration_seconds_bucket
+              - action: drop
+                sourceLabels: ["__name__"]
+                regex: (apiserver_response_sizes_bucket|apiserver_watch_events_sizes_bucket)
+
+        # kubeControllerManager:
+        #   enabled: false
+
+        # kubeEtcd:
+        #   enabled: false
+
+        kubelet:
+          enabled: true
+          serviceMonitor:
+            metricRelabelings:
+              # Drop high cardinality labels
+              - action: labeldrop
+                regex: (uid)
+              - action: labeldrop
+                regex: (id|name)
+              - action: drop
+                sourceLabels: ["__name__"]
+                regex: (rest_client_request_duration_seconds_bucket|rest_client_request_duration_seconds_sum|rest_client_request_duration_seconds_count)
+
+        # kubeProxy:
+        #   enabled: false
+
+        # kubeScheduler:
+        #   enabled: false
+
+        # kubeStateMetrics:
+        #   enabled: false
+
+        # nodeExporter:
+        #   enabled: false
+
+        prometheusOperator:
+          resources:
+            requests:
+              cpu: 35m
+              memory: 273M
+            limits:
+              memory: 326M
+
+          prometheusConfigReloader:
+            # resource config for prometheusConfigReloader
+            resources:
+              requests:
+                cpu: 5m
+                memory: 32M
+              limits:
+                memory: 32M
+
+        prometheus:
+          ingress:
+            enabled: true
+            ingressClassName: nginx
+            annotations:
+              cert-manager.io/cluster-issuer: "letsencrypt-production"
+              traefik.ingress.kubernetes.io/router.tls: "true"
+            hosts:
+              - prometheus.lab.alsheykh.com
+            pathType: Prefix
+            tls:
+              - hosts:
+                - prometheus.lab.alsheykh.com
+                secretName: prometheus-tls
+
+          prometheusSpec:
+            podMonitorSelectorNilUsesHelmValues: false
+            probeSelectorNilUsesHelmValues: false
+            replicaExternalLabelName: "__replica__" # must match with thanos value `.query.replicaLabel[0]`
+            resources:
+              requests:
+                cpu: 100m
+              limits:
+                memory: 1500M
+            # retention: 14d
+            # retentionSize: 50GB
+            ruleSelectorNilUsesHelmValues: false
+            scrapeConfigSelectorNilUsesHelmValues: false
+            # scrapeInterval: 1m # Must match interval in Grafana Helm chart
+            serviceMonitorSelectorNilUsesHelmValues: false
+        
+        grafana:
+
+          # dashboardProviders:
+          #   dashboardproviders.yaml:
+          #     apiVersion: 1
+          #     providers:
+          #       - name: default
+          #         disableDeletion: false
+          #         editable: true
+          #         folder: ""
+          #         options:
+          #           path: /var/lib/grafana/dashboards/default
+          #         orgId: 1
+          #         type: file
+          #       - name: ceph
+          #         orgId: 1
+          #         folder: Ceph
+          #         type: file
+          #         disableDeletion: false
+          #         editable: true
+          #         options:
+          #           path: /var/lib/grafana/dashboards/ceph
+          #       - name: kubernetes
+          #         orgId: 1
+          #         folder: Kubernetes
+          #         type: file
+          #         disableDeletion: false
+          #         editable: true
+          #         options:
+          #           path: /var/lib/grafana/dashboards/kubernetes
+          #       - name: nginx
+          #         orgId: 1
+          #         folder: Nginx
+          #         type: file
+          #         disableDeletion: false
+          #         editable: true
+          #         options:
+          #           path: /var/lib/grafana/dashboards/nginx
+          #       - name: postgres
+          #         orgId: 1
+          #         folder: Postgres
+          #         type: file
+          #         disableDeletion: false
+          #         editable: true
+          #         options:
+          #           path: /var/lib/grafana/dashboards/postgres
+
+          dashboards:
+            default:
+              cert-manager:
+                url: https://raw.githubusercontent.com/monitoring-mixins/website/master/assets/cert-manager/dashboards/cert-manager.json
+                datasource: Prometheus
+
+              external-secrets:
+                url: https://raw.githubusercontent.com/external-secrets/external-secrets/main/docs/snippets/dashboard.json
+                datasource: Prometheus
+
+            # kubernetes:
+            #   k8s-system-api-server:
+            #     # renovate: dashboardName="Kubernetes / System / API Server"
+            #     gnetId: 15761
+            #     revision: 17
+            #     datasource: Prometheus
+            #   k8s-views-global:
+            #     # renovate: dashboardName="Kubernetes / Views / Global"
+            #     gnetId: 15757
+            #     revision: 37
+            #     datasource: Prometheus
+            #   k8s-views-nodes:
+            #     # renovate: dashboardName="Kubernetes / Views / Nodes"
+            #     gnetId: 15759
+            #     revision: 29
+            #     datasource: Prometheus
+            #   k8s-views-namespaces:
+            #     # renovate: dashboardName="Kubernetes / Views / Namespaces"
+            #     gnetId: 15758
+            #     revision: 35
+            #     datasource: Prometheus
+            #   k8s-views-pods:
+            #     # renovate: dashboardName="Kubernetes / Views / Pods"
+            #     gnetId: 15760
+            #     revision: 28
+            #     datasource: Prometheus
+            #   k8s-volumes:
+            #     # renovate: dashboardName="K8s / Storage / Volumes / Cluster"
+            #     gnetId: 11454
+            #     revision: 14
+            #     datasource: Prometheus
+
+            # nginx:
+            #   nginx:
+            #     url: https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/grafana/dashboards/nginx.json
+            #     datasource: Prometheus
+            #   nginx-request-handling-performance:
+            #     url: https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/grafana/dashboards/request-handling-performance.json
+            #     datasource: Prometheus
+
+            # postgres:
+            #   crunchy-pgbackrest:
+            #     url: https://raw.githubusercontent.com/CrunchyData/postgres-operator-examples/main/kustomize/monitoring/grafana/dashboards/pgbackrest.json
+            #     datasource: Prometheus
+            #   crunchy-pod-details:
+            #     url: https://raw.githubusercontent.com/CrunchyData/postgres-operator-examples/main/kustomize/monitoring/grafana/dashboards/pod_details.json
+            #     datasource: Prometheus
+            #   crunchy-postgresql-details:
+            #     url: https://raw.githubusercontent.com/CrunchyData/postgres-operator-examples/main/kustomize/monitoring/grafana/dashboards/postgresql_details.json
+            #     datasource: Prometheus
+            #   crunchy-postgresql-overview:
+            #     url: https://raw.githubusercontent.com/CrunchyData/postgres-operator-examples/main/kustomize/monitoring/grafana/dashboards/postgresql_overview.json
+            #     datasource: Prometheus
+            #   crunchy-postgresql-service_health:
+            #     url: https://raw.githubusercontent.com/CrunchyData/postgres-operator-examples/main/kustomize/monitoring/grafana/dashboards/postgresql_service_health.json
+            #     datasource: Prometheus
+            #   crunchy-prometheus-alerts:
+            #     url: https://raw.githubusercontent.com/CrunchyData/postgres-operator-examples/main/kustomize/monitoring/grafana/dashboards/prometheus_alerts.json
+            #     datasource: Prometheus
+            #   crunchy-query-statistics:
+            #     url: https://raw.githubusercontent.com/CrunchyData/postgres-operator-examples/main/kustomize/monitoring/grafana/dashboards/query_statistics.json
+            #     datasource: Prometheus
+
+          # datasources:
+          #   datasources.yaml:
+          #     apiVersion: 1
+          #     datasources:
+          #       - access: proxy
+          #         name: Prometheus
+          #         type: prometheus
+          #         url: http://prometheus-operated.monitoring.svc.cluster.local:9090
+          #         isDefault: true
+          #         jsonData:
+          #           prometheusType: Prometheus
+          #       - access: proxy
+          #         name: Loki
+          #         type: loki
+          #         url: http://loki-gateway.monitoring.svc.cluster.local:80
+
+          #     deleteDatasources:
+          #       - name: Prometheus
+          #         orgId: 1
+          #       - name: Loki
+          #         orgId: 1
+
+          env:
+            # GF_ANALYTICS_CHECK_FOR_UPDATES: false
+            # GF_ANALYTICS_CHECK_FOR_PLUGIN_UPDATES: false
+            # GF_ANALYTICS_REPORTING_ENABLED: false
+            # GF_AUTH_ANONYMOUS_ENABLED: false
+            # GF_AUTH_BASIC_ENABLED: false
+            # GF_DATE_FORMATS_USE_BROWSER_LOCALE: true
+            # GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /tmp/dashboards/home.json
+            # GF_EXPLORE_ENABLED: true
+            # GF_FEATURE_TOGGLES_ENABLE: publicDashboards
+            # GF_LOG_MODE: console
+            # GF_NEWS_NEWS_FEED_ENABLED: false
+            # GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: natel-discrete-panel,pr0ps-trackmap-panel,panodata-map-panel
+            # GF_SECURITY_COOKIE_SAMESITE: grafana
+            GF_SERVER_ROOT_URL: https://grafana.lab.alsheykh.com
+
+          imageRenderer:
+            enabled: true
+
+          ingress:
+            enabled: true
+            ingressClassName: nginx
+            annotations:
+              cert-manager.io/cluster-issuer: "letsencrypt-production"
+              traefik.ingress.kubernetes.io/router.tls: "true"
+            hosts:
+              - grafana.lab.alsheykh.com
+            tls:
+              - hosts:
+                - grafana.lab.alsheykh.com
+                secretName: grafana-tls
+
+          persistence:
+            enabled: false
+
+          # plugins:
+          #   - grafana-clock-panel
+          #   - grafana-piechart-panel
+          #   - grafana-worldmap-panel
+          #   - natel-discrete-panel
+          #   - pr0ps-trackmap-panel
+          #   - vonage-status-panel
+
+          rbac:
+            pspEnabled: false
+
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              cpu: 50m
+              memory: 128Mi
+
+          serviceAccount:
+            create: true
+            autoMount: true
+
+          serviceMonitor:
+            enabled: true
+
+          sidecar:
+            dashboards:
+              enabled: true
+              searchNamespace: ALL
+              label: grafana_dashboard
+              folderAnnotation: grafana_folder
+              provider:
+                disableDelete: true
+                foldersFromFilesStructure: true
+            datasources:
+              enabled: true
+              searchNamespace: ALL
+              labelValue: ""
+
+          # testFramework:
+          #   enabled: false
+
+          topologySpreadConstraints:
+            - maxSkew: 1
+              topologyKey: kubernetes.io/hostname
+              whenUnsatisfiable: DoNotSchedule
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: grafana
+    chart: kube-prometheus-stack
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: kube-prometheus-stack
+  syncPolicy:
+    retry:
+      limit: 10
+      backoff:
+        duration: 1m
+        factor: 2
+        maxDuration: 16m
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
