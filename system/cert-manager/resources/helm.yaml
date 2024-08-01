@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   annotations:
-      argocd.argoproj.io/sync-wave: "0"
+      argocd.argoproj.io/sync-wave: "-1"
   labels:
     app.kubernetes.io/name: cert-manager
   name: cert-manager
@@ -21,5 +21,12 @@ spec:
     server: 'https://kubernetes.default.svc'
     namespace: cert-manager
   syncPolicy:
+    retry:
+      limit: 10
+      backoff:
+        duration: 1m
+        factor: 2
+        maxDuration: 16m
     syncOptions:
       - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
