@@ -6,7 +6,7 @@ metadata:
   name: cert-manager
   namespace: argocd
 spec:
-  project: lab
+  project: system
   source:
     repoURL: 'https://charts.jetstack.io'
     targetRevision: v1.15.2
