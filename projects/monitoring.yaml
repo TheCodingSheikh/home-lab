@@ -82,7 +82,6 @@ spec:
         repoURL: '{{ srcRepoURL }}'
         targetRevision: '{{ srcTargetRevision }}'
       syncPolicy:
-        automated: {}
         retry:
           limit: 10
           backoff:
