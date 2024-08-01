@@ -1,6 +1,6 @@
 {
     "appName": "cert-manager",
-    "userGivenName": "cert-manager-base",
+    "userGivenName": "cert-manager",
     "destNamespace": "cert-manager",
     "destServer": "https://kubernetes.default.svc",
     "srcPath": "apps/system/cert-manager",

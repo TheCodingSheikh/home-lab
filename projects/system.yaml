@@ -82,9 +82,7 @@ spec:
         repoURL: '{{ srcRepoURL }}'
         targetRevision: '{{ srcTargetRevision }}'
       syncPolicy:
-        automated:
-          prune: true
-          selfHeal: true
+        automated: {}
         retry:
           limit: 10
           backoff:

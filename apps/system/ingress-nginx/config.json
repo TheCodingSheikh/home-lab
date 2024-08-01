@@ -1,6 +1,6 @@
 {
     "appName": "ingress-nginx",
-    "userGivenName": "ingress-nginx-base",
+    "userGivenName": "ingress-nginx",
     "destNamespace": "ingress-nginx",
     "destServer": "https://kubernetes.default.svc",
     "srcPath": "apps/system/ingress-nginx",
