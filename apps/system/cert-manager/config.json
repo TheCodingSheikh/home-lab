@@ -3,7 +3,7 @@
     "userGivenName": "cert-manager-base",
     "destNamespace": "cert-manager",
     "destServer": "https://kubernetes.default.svc",
-    "srcPath": "system/cert-manager",
+    "srcPath": "apps/system/cert-manager",
     "srcRepoURL": "https://github.com/TheCodingSheikh/home-lab.git",
     "srcTargetRevision": "",
     "labels": null,

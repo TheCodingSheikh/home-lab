@@ -33,7 +33,7 @@ spec:
   generators:
   - git:
       files:
-      - path: system/**/config.json
+      - path: apps/system/**/config.json
       repoURL: https://github.com/TheCodingSheikh/home-lab.git
       requeueAfterSeconds: 20
       revision: ""
@@ -44,7 +44,7 @@ spec:
           project: ""
   - git:
       files:
-      - path: system/**/config_dir.json
+      - path: apps/system/**/config_dir.json
       repoURL: https://github.com/TheCodingSheikh/home-lab.git
       requeueAfterSeconds: 20
       revision: ""

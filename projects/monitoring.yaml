@@ -4,13 +4,13 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-options: PruneLast=true
     argocd.argoproj.io/sync-wave: "-2"
-  name: apps
+  name: platform
   namespace: argocd
 spec:
   clusterResourceWhitelist:
   - group: '*'
     kind: '*'
-  description: apps project
+  description: platform project
   destinations:
   - namespace: '*'
     server: '*'
@@ -27,13 +27,13 @@ kind: ApplicationSet
 metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "0"
-  name: apps
+  name: platform
   namespace: argocd
 spec:
   generators:
   - git:
       files:
-      - path: apps/**/config.json
+      - path: apps/monitoring//**/config.json
       repoURL: https://github.com/TheCodingSheikh/home-lab.git
       requeueAfterSeconds: 20
       revision: ""
@@ -44,7 +44,7 @@ spec:
           project: ""
   - git:
       files:
-      - path: apps/**/config_dir.json
+      - path: apps/monitoring//**/config_dir.json
       repoURL: https://github.com/TheCodingSheikh/home-lab.git
       requeueAfterSeconds: 20
       revision: ""
@@ -76,7 +76,7 @@ spec:
         jsonPointers:
         - /status
         kind: Application
-      project: apps
+      project: platform
       source:
         path: '{{ srcPath }}'
         repoURL: '{{ srcRepoURL }}'
