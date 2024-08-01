@@ -34,7 +34,7 @@ spec:
   - git:
       files:
       - path: system/**/config.json
-      repoURL: https://github.com/TheCodingSheikh/homelab.git
+      repoURL: https://github.com/TheCodingSheikh/home-lab.git
       requeueAfterSeconds: 20
       revision: ""
       template:
@@ -45,7 +45,7 @@ spec:
   - git:
       files:
       - path: system/**/config_dir.json
-      repoURL: https://github.com/TheCodingSheikh/homelab.git
+      repoURL: https://github.com/TheCodingSheikh/home-lab.git
       requeueAfterSeconds: 20
       revision: ""
       template:
