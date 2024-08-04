@@ -1,0 +1,11 @@
+server:
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    hosts:
+      - host: vault.lab.alsheykh.com
+        paths: []
+    tls:
+      - secretName: vault-tls
+        hosts:
+          - vault.lab.alsheykh.com
